@@ -15,11 +15,11 @@ import (
 
 // GoTral : enabling uses of basic auth
 type GoTral struct {
-	Url string
+	Url        string
 	Passphrase string
-	BasicAuth bool
-	Username string
-	Password string
+	BasicAuth  bool
+	Username   string
+	Password   string
 }
 
 // config : a data structure that come from GoTral server
@@ -80,35 +80,35 @@ func (r GoTral) LoadConfig() (confret, error) {
 
 	if r.BasicAuth == false {
 		val, err := DirectLoad(r.Url, r.Passphrase)
-		if err != nil { 
-			return nil, err 
+		if err != nil {
+			return nil, err
 		}
 		return val, nil
 	}
 
 	// initialize http client with/out option
-    client := &http.Client{}
+	client := &http.Client{}
 
-    // create new request by given url
-    req, err := http.NewRequest("GET", r.Url, nil)
-    if err != nil{
-        return nil, err
-    }
+	// create new request by given url
+	req, err := http.NewRequest("GET", r.Url, nil)
+	if err != nil {
+		return nil, err
+	}
 
-    // pass auth for BasicAuth
-    req.SetBasicAuth(r.Username, r.Password)
+	// pass auth for BasicAuth
+	req.SetBasicAuth(r.Username, r.Password)
 
-    resp, err := client.Do(req)
-    if err != nil{
-        return nil, err
-    }
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
 
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
-    if resp.StatusCode == 401 {
-    	return nil, fmt.Errorf("Unauthorized, wrong username/password")
-    }
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+	if resp.StatusCode == 401 {
+		return nil, fmt.Errorf("Unauthorized, wrong username/password")
+	}
 
-    body, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
