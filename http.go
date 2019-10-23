@@ -45,7 +45,7 @@ func LoadConfig(url string, passphrase string) (confret, error) {
 
 	// initialize slices of config to receive data from api
 	var decoded []config
-	err = json.NewDecoder(resp.Body).Decode(&decoded)
+	err = json.Unmarshal(decrypt, &decoded)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +57,8 @@ func LoadConfig(url string, passphrase string) (confret, error) {
 	for _, value := range decoded {
 		// break and return error if there is duplicate key
 		// that come from api
-		if val, ok := dict[val.Key]; ok {
-			return nil, fmt.Errorf("error: duplicate config key : %v", val.Key)
+		if _, ok := result[value.Key]; ok {
+			return nil, fmt.Errorf("error: duplicate config key : %v", value.Key)
 		}
 		result[value.Key] = value.Value
 	}
