@@ -7,10 +7,10 @@
 package gotral
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"encoding/json"
 )
 
 // config : a data structure that come from GoTral server
