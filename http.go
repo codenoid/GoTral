@@ -42,6 +42,11 @@ func DirectLoad(url string, passphrase string) (confret, error) {
 	}
 	defer resp.Body.Close()
 
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+	if resp.StatusCode == 401 {
+		return nil, fmt.Errorf("Unauthorized, username & password for basic auth needed")
+	}
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
