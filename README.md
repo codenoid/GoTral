@@ -2,9 +2,11 @@
 
 Encrypted Golang Centralized Configuration management
 
-## Install
+## Setup & Install
 
-Just like usual way
+Make sure you already have [GoTral server](https://github.com/codenoid/GoTral-Server) up
+
+For the library just like usual way
 
 ```
 go get -u github.com/codenoid/gotral
@@ -24,16 +26,16 @@ import (
 func main() {
 
 	// super secret key
-	secret := string([]byte{97, 121, 97, 109}) // or just put string in there
+	secret := "somehardpw" // or just put string in there
 
-	config, err := gotral.DirectLoad("http://someurlto.gotral.api", secret)
+	config, err := gotral.DirectLoad("http://localhost:6969/config?id=ecommerce.json", secret)
 	if err != nil { fmt.Println(err) }
-	fmt.Println(config)
+	fmt.Println(config["mysql_username"])
 
 	// with basic auth support
 	withOpt := gotral.GoTral{
-		Url: "https://jigsaw.w3.org/HTTP/Basic",
-		Passphrase: "DecryptPassword",
+		Url: "http://localhost:6969/config?id=ecommerce.json",
+		Passphrase: "somehardpw",
 		BasicAuth: true,
 		Username: "guest",
 		Password: "guest",
@@ -41,8 +43,6 @@ func main() {
 
 	config, err = withOpt.LoadConfig()
 	if err != nil { fmt.Println(err) }
-	fmt.Println(config)
+	fmt.Println(config["mysql_username"])
 }
-
 ```
-
