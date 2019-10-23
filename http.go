@@ -44,7 +44,7 @@ func LoadConfig(url string, passphrase string) (confret, error) {
 	}
 
 	// initialize slices of config to receive data from api
-	decoded := new([]config)
+	var decoded []config
 	err = json.NewDecoder(resp.Body).Decode(&decoded)
 	if err != nil {
 		return nil, err
