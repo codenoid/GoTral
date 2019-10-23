@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"./gotral"
+	"github.com/codenoid/gotral"
 )
 
 // config : a data structure that come from GoTral server
