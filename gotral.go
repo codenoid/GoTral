@@ -55,7 +55,7 @@ func Encrypt(data []byte, passphrase string) ([]byte, error) {
 func Decrypt(data []byte, passphrase string) ([]byte, error) {
 	// create md5 byte slice
 	key := []byte(createHash(passphrase))
-	// just `reverse` algoritm with passphrase until return
+	// just `reverse` algorithm with passphrase until return
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
