@@ -9,6 +9,8 @@ package gotral
 import (
 	"fmt"
 	"net/http"
+
+	"./gotral"
 )
 
 // config : a data structure that come from GoTral server
@@ -34,6 +36,11 @@ func LoadConfig(url string, passphrase string) (confret, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	decrypt, err := gotral.Decrypt(body, passphrase)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt data, got : %v", err.Error())
 	}
 
 	// initialize slices of config to receive data from api
