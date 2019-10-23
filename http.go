@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"encoding/json"
 )
 
 // config : a data structure that come from GoTral server
@@ -44,7 +45,7 @@ func LoadConfig(url string, passphrase string) (confret, error) {
 
 	// initialize slices of config to receive data from api
 	decoded := new([]config)
-	err = json.NewDecoder(r.Body).Decode(&decoded)
+	err = json.NewDecoder(resp.Body).Decode(&decoded)
 	if err != nil {
 		return nil, err
 	}
