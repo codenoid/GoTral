@@ -8,9 +8,8 @@ package gotral
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
-
-	"github.com/codenoid/gotral"
 )
 
 // config : a data structure that come from GoTral server
@@ -38,7 +37,7 @@ func LoadConfig(url string, passphrase string) (confret, error) {
 		return nil, err
 	}
 
-	decrypt, err := gotral.Decrypt(body, passphrase)
+	decrypt, err := Decrypt(body, passphrase)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt data, got : %v", err.Error())
 	}
