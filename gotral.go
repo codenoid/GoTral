@@ -1,8 +1,8 @@
 /*
 * github.com/codenoid - Developer
 * code source : - https://www.thepolyglotdeveloper.com/2018/02/encrypt-decrypt-data-golang-application-crypto-packages/
-*  				- https://golang.org/pkg/crypto/cipher
-* 				- https://github.com/codenoid/GoTral
+*               - https://golang.org/pkg/crypto/cipher
+*               - https://github.com/codenoid/GoTral
 *
  */
 package gotral

@@ -1,7 +1,7 @@
 /*
 * github.com/codenoid - Developer
 * code source : - https://github.com/codenoid/GoTral
-* 				- https://golang.org/pkg/net/http/
+*               - https://golang.org/pkg/net/http/
 *
  */
 package gotral
