@@ -13,10 +13,7 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/hex"
-	"fmt"
 	"io"
-	"io/ioutil"
-	"os"
 )
 
 // createHash : create md5 hash and return as string
@@ -28,7 +25,7 @@ func createHash(key string) string {
 
 // Encrypt : encrypt given data with passphrase
 // Load your secret key from a safe place and reuse it across multiple
-// Seal/Open calls.
+// Seal/Open calls, this library actually doesn't need 
 func Encrypt(data []byte, passphrase string) ([]byte, error) {
 	// create aes.NewCipher from hashed md5 passphrase
 	block, _ := aes.NewCipher([]byte(createHash(passphrase)))
