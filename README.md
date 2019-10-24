@@ -1,6 +1,8 @@
-# GoTral [![Go Report Card](https://goreportcard.com/badge/github.com/codenoid/GoTral)](https://goreportcard.com/report/github.com/codenoid/GoTral)
+# WIP:GoTral [![Go Report Card](https://goreportcard.com/badge/github.com/codenoid/GoTral)](https://goreportcard.com/report/github.com/codenoid/GoTral)
 
 Encrypted Golang Centralized Configuration management
+
+# Still WIP Do not use this until new decrypt bug fix !!!!!!
 
 ## Feature
 
