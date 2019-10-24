@@ -2,6 +2,14 @@
 
 Encrypted Golang Centralized Configuration management
 
+## Feature
+
+- E2E Encryption (via http/s)
+- Basic auth support
+- Multiple config file in single server
+- Easy to use, simple API and return as map[string]string
+- ....and more (/next update)
+
 ## Setup & Install
 
 Make sure you already have [GoTral server](https://github.com/codenoid/GoTral-Server) up
