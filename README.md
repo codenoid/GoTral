@@ -54,7 +54,3 @@ func main() {
 	fmt.Println(config["mysql_username"])
 }
 ```
-
-## KNOWN ISSUE
-
-1. Current Golang net/http library won't work with Cloudflare Opportunistic Encryption
