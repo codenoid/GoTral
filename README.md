@@ -2,8 +2,6 @@
 
 Encrypted Golang Centralized Configuration management
 
-# Still WIP Do not use this until new decrypt bug fix !!!!!!
-
 ## Feature
 
 - E2E Encryption (via http/s)
