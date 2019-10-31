@@ -38,7 +38,9 @@ func main() {
 
 	config, err := gotral.DirectLoad("http://localhost:6969/config?id=ecommerce.json", secret)
 	if err != nil { fmt.Println(err) }
-	fmt.Println(config["mysql_username"])
+	if val, err := config.Get("mysql_username"); !err {
+		fmt.Println(val)
+	}
 
 	// with basic auth support
 	withOpt := gotral.GoTral{
@@ -51,6 +53,8 @@ func main() {
 
 	config, err = withOpt.LoadConfig()
 	if err != nil { fmt.Println(err) }
-	fmt.Println(config["mysql_username"])
+	if val, err := config.Get("mysql_username"); !err {
+		fmt.Println(val)
+	}
 }
 ```
