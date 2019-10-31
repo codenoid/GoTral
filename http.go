@@ -33,6 +33,17 @@ type config struct {
 // easy to use/get/understand
 type confret map[string]string
 
+// Get : returns a value or an error for a key
+func (config confret) Get(key string) (string, error) {
+	if len(config) == 0 {
+		return "", fmt.Errorf("The config is empty")
+	}
+	if val, ok := config[key]; ok {
+		return val, nil
+	}
+	return "", fmt.Errorf("The key doesn't exist")
+}
+
 // DirectLoad : directly load config from given url and decrypt with given passphrase
 // usually this function only called on app boot time
 func DirectLoad(url string, passphrase string) (confret, error) {
