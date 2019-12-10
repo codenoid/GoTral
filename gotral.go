@@ -1,74 +1,160 @@
-/*
+/**
 * github.com/codenoid - Developer
-* code source : - https://www.thepolyglotdeveloper.com/2018/02/encrypt-decrypt-data-golang-application-crypto-packages/
-*               - https://golang.org/pkg/crypto/cipher
-*               - https://github.com/codenoid/GoTral
-*
- */
+* code source : - https://github.com/codenoid/GoTral
+*               - https://golang.org/pkg/net/http/
+*/
 package gotral
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/md5"
-	"crypto/rand"
-	"encoding/hex"
-	"io"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 )
 
-// createHash : create md5 hash and return as string
-func createHash(key string) string {
-	hasher := md5.New()
-	hasher.Write([]byte(key))
-	return hex.EncodeToString(hasher.Sum(nil))
+import "github.com/mervick/aes-everywhere/go/aes256"
+
+// GoTral : enabling uses of basic auth
+type GoTral struct {
+	Url        string
+	Passphrase string
+	BasicAuth  bool
+	Username   string
+	Password   string
 }
 
-// Encrypt : encrypt given data with passphrase
-// Load your secret key from a safe place and reuse it across multiple
-// Seal/Open calls, this library actually doesn't need
-func Encrypt(data []byte, passphrase string) ([]byte, error) {
-	// create aes.NewCipher from hashed md5 passphrase
-	block, _ := aes.NewCipher([]byte(createHash(passphrase)))
-	//  NewGCM returns the given 128-bit, block cipher wrapped in
-	// Galois Counter Mode with the standard nonce length.
-	gcm, err := cipher.NewGCM(block)
+// config : a data structure that come from GoTral server
+// usually just {"key": "what", "value": "somethingsecret"}
+type config struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+// confret : return config data as string map
+// easy to use/get/understand
+type confret map[string]string
+
+// Get : returns a value or an error for a key
+func (config confret) Get(key string) (string, error) {
+	if len(config) == 0 {
+		return "", fmt.Errorf("The config is empty")
+	}
+	if val, ok := config[key]; ok {
+		return val, nil
+	}
+	return "", fmt.Errorf("The key doesn't exist")
+}
+
+// DirectLoad : directly load config from given url and decrypt with given passphrase
+// usually this function only called on app boot time
+func DirectLoad(url string, passphrase string) (confret, error) {
+	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
-	// initialize slice with length of nonce that must be passed to Seal and Open.
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+	defer resp.Body.Close()
+
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+	if resp.StatusCode == 401 {
+		return nil, fmt.Errorf("Unauthorized, username & password for basic auth needed")
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
 		return nil, err
 	}
 
-	// Seal encrypts and authenticates plaintext, authenticates the
-	// additional data and appends the result to dst, returning the updated
-	// slice. The nonce must be NonceSize() bytes long and unique for all
-	// time, for a given key.
-	ciphertext := gcm.Seal(nonce, nonce, data, nil)
-	return ciphertext, nil
+	decrypt, err := aes256.Decrypt(body, passphrase)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt data, got : %v", err.Error())
+	}
+
+	// initialize slices of config to receive data from api
+	var decoded []config
+	err = json.Unmarshal(decrypt, &decoded)
+	if err != nil {
+		return nil, err
+	}
+
+	// initialize empty map[string]string
+	result := make(map[string]string)
+
+	// iterate and put all data into result
+	for _, value := range decoded {
+		// break and return error if there is duplicate key
+		// that come from api
+		if _, ok := result[value.Key]; ok {
+			return nil, fmt.Errorf("error: duplicate config key : %v", value.Key)
+		}
+		result[value.Key] = value.Value
+	}
+
+	return result, nil
 }
 
-// Decrypt : decrypt given data with passphrase
-// Load your secret key from a safe place and reuse it across multiple
-// Seal/Open calls.
-func Decrypt(data []byte, passphrase string) ([]byte, error) {
-	// create md5 byte slice
-	key := []byte(createHash(passphrase))
-	// just `reverse` algorithm with passphrase until return
-	block, err := aes.NewCipher(key)
+// LoadConfig : basic auth version support
+func (r GoTral) LoadConfig() (confret, error) {
+
+	if r.BasicAuth == false {
+		val, err := DirectLoad(r.Url, r.Passphrase)
+		if err != nil {
+			return nil, err
+		}
+		return val, nil
+	}
+
+	// initialize http client with/out option
+	client := &http.Client{}
+
+	// create new request by given url
+	req, err := http.NewRequest("GET", r.Url, nil)
 	if err != nil {
 		return nil, err
 	}
-	gcm, err := cipher.NewGCM(block)
+
+	// pass auth for BasicAuth
+	req.SetBasicAuth(r.Username, r.Password)
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	nonceSize := gcm.NonceSize()
-	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
-	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+	if resp.StatusCode == 401 {
+		return nil, fmt.Errorf("Unauthorized, wrong username/password")
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	return plaintext, nil
+
+	decrypt, err := Decrypt(body, r.Passphrase)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt data, got : %v", err.Error())
+	}
+
+	// initialize slices of config to receive data from api
+	var decoded []config
+	err = json.Unmarshal(decrypt, &decoded)
+	if err != nil {
+		return nil, err
+	}
+
+	// initialize empty map[string]string
+	result := make(map[string]string)
+
+	// iterate and put all data into result
+	for _, value := range decoded {
+		// break and return error if there is duplicate key
+		// that come from api
+		if _, ok := result[value.Key]; ok {
+			return nil, fmt.Errorf("error: duplicate config key : %v", value.Key)
+		}
+		result[value.Key] = value.Value
+	}
+
+	return result, nil
 }
+
