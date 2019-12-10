@@ -64,10 +64,7 @@ func DirectLoad(url string, passphrase string) (confret, error) {
 		return nil, err
 	}
 
-	decrypt, err := aes256.Decrypt(body, passphrase)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt data, got : %v", err.Error())
-	}
+	decrypt := aes256.Decrypt(body, passphrase)
 
 	// initialize slices of config to receive data from api
 	var decoded []config
