@@ -64,11 +64,11 @@ func DirectLoad(url string, passphrase string) (confret, error) {
 		return nil, err
 	}
 
-	decrypt := aes256.Decrypt(body, passphrase)
+	decrypt := aes256.Decrypt(string(body), passphrase)
 
 	// initialize slices of config to receive data from api
 	var decoded []config
-	err = json.Unmarshal(decrypt, &decoded)
+	err = json.Unmarshal([]byte(decrypt), &decoded)
 	if err != nil {
 		return nil, err
 	}
@@ -127,14 +127,11 @@ func (r GoTral) LoadConfig() (confret, error) {
 		return nil, err
 	}
 
-	decrypt, err := Decrypt(body, r.Passphrase)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt data, got : %v", err.Error())
-	}
+	decrypt := aes256.Decrypt(string(body), r.Passphrase)
 
 	// initialize slices of config to receive data from api
 	var decoded []config
-	err = json.Unmarshal(decrypt, &decoded)
+	err = json.Unmarshal([]byte(decrypt), &decoded)
 	if err != nil {
 		return nil, err
 	}
